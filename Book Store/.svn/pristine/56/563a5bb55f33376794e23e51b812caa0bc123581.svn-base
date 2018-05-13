@@ -1,0 +1,13 @@
+spring:
+  profiles.active: test
+---  
+spring:
+    profiles: test
+datasource:
+    pg_host: localhost
+    pg_port: 5432
+    pg_username: postgres
+    pg_password: linux
+    pg_db: book_db
+server:
+    port: 9005

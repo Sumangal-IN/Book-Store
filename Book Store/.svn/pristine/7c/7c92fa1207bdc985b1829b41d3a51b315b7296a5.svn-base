@@ -1,0 +1,58 @@
+package com.kingfisher.bookStore.util;
+
+import java.sql.DriverManager;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import com.kingfisher.bookStore.Exception.bookStoreException;
+import org.springframework.beans.factory.annotation.Autowired;
+
+@Component
+public class DBConnectionManager {
+	private static Logger logger = LogManager.getLogger();
+
+	@Autowired
+	private DBConfig configuration;
+
+	public Connection getConnection() throws bookStoreException {
+		Connection connection = null;
+		System.out.println("profile : " + configuration.getPg_username());
+		try {
+			logger.info("Connection to jdbc:postgresql://"
+					+ configuration.getPg_host() + ":"
+					+ configuration.getPg_port() + "/"
+					+ configuration.getPg_db() + " with username : "
+					+ configuration.getPg_username());
+			Class.forName("org.postgresql.Driver");
+			connection = DriverManager.getConnection(
+					"jdbc:postgresql://" + configuration.getPg_host() + ":"
+							+ configuration.getPg_port() + "/"
+							+ configuration.getPg_db(),
+					configuration.getPg_username(),
+					configuration.getPg_password());
+		} catch (ClassNotFoundException e) {
+			logger.error(e.getMessage());
+			throw (new bookStoreException("DB driver not found"));
+		} catch (SQLException e) {
+			logger.error(e.getMessage());
+			throw (new bookStoreException("Error in connecting DB"));
+		}
+		logger.info("DB connection established");
+		return connection;
+	}
+
+	public void disconnect(Connection connection) throws bookStoreException {
+		try {
+			connection.close();
+		} catch (SQLException e) {
+			logger.error(e.getMessage());
+			throw (new bookStoreException("Error in closing DB"));
+		}
+		logger.info("DB connection terminated");
+	}
+}
